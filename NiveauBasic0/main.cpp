@@ -1,4 +1,3 @@
-
 /**********************************************************
 *
 *	File : main.cpp
@@ -19,12 +18,71 @@
 
 using namespace std;
 
-
-    /// TO DO :
+    /// TO DO : ////// Envoyer sur le GitHub //////////////////
     /**
-    ERREUR !
-    Envoyer sur le GitHub
-    */
+     * FINI !
+     */
+    /// Adresse des FICHIERS !!
+
+
+class ErrorCheck{
+public:
+    ErrorCheck(){
+        for (int a = 0 ; a < 9 ; a++){error[a] = false;}
+    }
+
+    void errorCh1(int inAr[9]){
+        int all[9];
+        // Init de all à zero
+        for (int a = 0 ; a < 9 ; a++){all[a] = 0;}
+
+        // Lecture des données
+        for (int a = 0 ; a < 9 ; a++){
+            all[inAr[a]-1]++;
+        }
+
+        for (int a = 0 ; a < 9 ; a++){
+            if(all[a] >= 2){
+                for(int i = 0 ; i < 9 ; i++){
+                    if (inAr[i] == a+1){
+                        error[i] = true;
+                    }
+                }
+            }
+        }
+    }
+
+    void errorReset(){
+        for (int a = 0 ; a < 9 ; a++){error[a] = false;}
+    }
+
+    bool getError(int a){return error[a];}
+
+    void setError(int a){error[a] = true; }
+
+    void errorDisplay(){
+        for (int a = 0 ; a < 9 ; a++){
+            if (error[a]){cout << "E" << " ";}
+            else {cout << "J" << " ";}
+            if (a%3 == 2){{cout <<"/";}}
+        }
+        cout << endl;
+    }
+
+private:
+    bool error[9];
+};
+
+void errorCorrespond(ErrorCheck errorH[9], ErrorCheck errorV[9]){
+    for (int i = 0 ; i < 9 ; i++){
+        for (int j = 0 ; j < 9 ; j++){
+            if (errorV[j].getError(i)){
+                errorH[i].setError(j);
+            }
+        }
+    }
+}
+
 
 class Ligne{
 public:
@@ -44,7 +102,7 @@ public:
 
     void getData(int Ln){
         int L1, place, iDLigne;
-        ifstream fluxData("C:/Users/Cédric/Documents/EMSE/Illu-Mines/Sudoku/NiveauBasic0/dataLigneInput.txt");
+        ifstream fluxData("dataLigneInput.txt");
         for (iDLigne = 0 ; iDLigne < Ln; iDLigne++){
             for (place = 0 ; place < 9 ; place++){
                 fluxData >> L1;
@@ -63,8 +121,6 @@ public:
     int getDataL(int i){
         return dataL[i];
     }
-
-private:
     int dataL[9];
 };
 
@@ -93,7 +149,8 @@ public:
     }
     void getData(){
         int L1, L2, L3, place;
-        ifstream fluxData("C:/Users/Cédric/Documents/EMSE/Illu-Mines/Sudoku/NiveauBasic0/dataInput.txt");
+        // C:/Users/Cédric/Documents/EMSE/Illu-Mines/Sudoku/NiveauBasic0/
+        ifstream fluxData("dataInput.txt");
         for (place = 0; place < 3 ; place++){
             fluxData >> L1 >> L2 >> L3;
             fillCarre(3 * place, L1);
@@ -105,7 +162,7 @@ public:
     int getDataG(int a){
         return data[a];
     }
-    // THE FONCTION !! Penser à faire de la récurence  dedans ou pas loin...
+    // THE FONCTION !!
     void solve(){
         int all[9] = {1, 2, 3, 4, 5, 6, 7, 8, 9};
         // Quelles nombres restent-ils à trouver dans le carre ?
@@ -131,11 +188,12 @@ private:
     int data[9];
 };
 
+
 class Grille{
     /// TO DO :
     /**
-    ERREUR En cours
-    Lignes Verticales
+    ERREUR En cours : Lignes Verticales
+    User Interface ?? CLI
     */
 
 public:
@@ -143,6 +201,9 @@ public:
         for (int i = 0; i < 9 ; i++){
             gridCar[i] = Carre();
             ligCar[i] = Ligne();
+            ligCarV[i] = Ligne();
+            error[i] = ErrorCheck();
+            errorV[i] = ErrorCheck();
         }
     }
 
@@ -154,10 +215,12 @@ public:
     }
 
     void afficheLigne(){
+        cout << "La grille de Sudoku : " << endl;
         for (int i = 0; i < 9 ; i++){
             ligCar[i].afficheLigne();
             if (i == 2 || i == 5 ){cout << "...................."<< endl;}
         }
+        cout << endl;
     }
 
     void fillGrilleWCarre(){
@@ -176,6 +239,7 @@ public:
         for (int i = 0; i < 9 ; i++){
             gridCar[i].solve();
         }
+        cout << "Sudoku Resolu !! " << endl;
     }
 
     void correspondLiWiGril(){
@@ -191,8 +255,14 @@ public:
         for (int i = 0; i < 9 ; i++){
             for (int j = 0; j < 9 ; j++){
                 ligCar[i].fillLigne(j, gridCar[retCar(i,j)].getDataG(retNumCar(i,j)));
+                ligCarV[j].fillLigne(i, ligCar[i].getDataL(j));
             }
         }
+    }
+
+    void afficheVerLig(int i){
+        cout << endl;
+        ligCarV[i].afficheLigne();
     }
 
     static int retCar(int L, int C){
@@ -212,24 +282,118 @@ public:
         return (L%3)*3 + C%3;
     }
 
-    void errorCheck(){
-
+    void errorCheckH(){
+        cout << endl << "Detection des erreurs : " << endl;
+        for (int a = 0 ; a < 9 ; a++){
+            // Lignes Verticales
+            error[a].errorReset();
+            error[a].errorCh1(ligCar[a].dataL);
+            errorV[a].errorReset();
+            errorV[a].errorCh1(ligCarV[a].dataL);
+        }
+        // Ajout des erreurs Verticales
+        errorCorrespond(error, errorV);
+        cout << "Erreurs trouvées" << endl;
     }
-
     void errorDisplay(){
-
-
+        cout << "Affichage des Erreurs" << endl;
+        for (int i = 0 ; i < 9 ; i++){
+            for (int j = 0 ; j < 9 ; j++){
+                if(error[i].getError(j)){cout << "(" << ligCar[i].dataL[j] << ")";}
+                else {cout << " " << ligCar[i].dataL[j] << " ";}
+                if (j%3 == 2){cout <<"/";}
+            }
+            cout << endl;
+            if (i%3 == 2){{cout <<"............................." << endl;}}
+        }
     }
+
+
 
 private: // Eventuellement faire des pointeurs sur un tableau unique :/
+    ErrorCheck error[9];
+    ErrorCheck errorV[9];
     Carre gridCar[9];
-    Ligne ligCar[9]; // Lignes Horizontales Seulement
+    Ligne ligCar[9]; // Lignes Horizontales
+    Ligne ligCarV[9]; // Lignes Verticales
 
 };
 
+// Fonctions Locales :
+void afficheMenu();
+void executeSudoku(int choix, Grille curGr);
 
 int main()
 {
+    Grille gr = Grille();
+    int goOn = 9;
+    while (goOn != 5){
+        afficheMenu();
+        cin >> goOn;
+        executeSudoku(goOn, gr);
+    }
+    cout << "\t Merci de votre Visite au revoir !! "<< endl;
+    cout << "\t \t Par Cedric HUMBERT pour Illu-Mines" << endl;
+
+    return 0;
+}
+
+void afficheMenu(){
+    cout << endl << endl;
+    cout << "Version Basique" << endl;
+    cout << "Pour utiliser le programme entrer le nombre correspondant : " << endl;
+    cout << "\t 1) Lire la grille en Memoire " << endl;
+    cout << "\t 2) Resoudre le Sudoku " << endl;
+    cout << "\t 3) Afficher les erreurs " << endl;
+    cout << "\t 4) Auto RUN" << endl;
+    cout << "\t 5) Quitter" << endl;
+    cout << "Entrer votre choix : ";
+}
+
+void executeSudoku(int choix, Grille curGr){
+    switch (choix){
+        case 1:{
+            curGr.fillGrilleWLigne();
+            curGr.afficheLigne();
+            break;
+        }
+        case 2:{
+            curGr.correspondLiWiGril();
+            curGr.solveGrille();
+            curGr.correspondGrilWiLi();
+            curGr.afficheLigne();
+            break;
+        }
+        case 3:{
+            curGr.fillGrilleWLigne();
+            curGr.correspondLiWiGril();
+            curGr.solveGrille();
+            curGr.correspondGrilWiLi();
+            curGr.errorCheckH();
+            curGr.errorDisplay();
+            break;
+        }
+        case 4:{
+            curGr.fillGrilleWLigne();
+            curGr.afficheLigne();
+            curGr.correspondLiWiGril();
+            curGr.solveGrille();
+            curGr.correspondGrilWiLi();
+            curGr.afficheLigne();
+            curGr.errorCheckH();
+            curGr.errorDisplay();
+            break;
+        }
+    }
+
+
+
+}
+
+
+
+void mainTest(){
+
     /** Test Carré OK :
     Carre carIn = Carre();
     carIn.getData();
@@ -267,14 +431,32 @@ int main()
     gr.afficheLigne();
     */
 
-    //Test Grille Erreur :
+    /**Test Grille Erreur : Works sur les lignes Horizontales
     Grille gr = Grille();
     gr.fillGrilleWLigne();
     gr.correspondLiWiGril();
     gr.solveGrille();
     gr.correspondGrilWiLi();
     gr.errorCheckH();
+    */
+
+    /** Pour la démo :
+    Grille gr = Grille();
+    gr.fillGrilleWLigne();
+    // Affichage la grille lue :
+    gr.afficheLigne();
+    //cin >> goOn;
+
+    // Resolution du Sudoku :
+    gr.correspondLiWiGril();
+    gr.solveGrille();
+    gr.correspondGrilWiLi();
+    gr.afficheLigne();
+    //cin >> goOn;
+
+    // Gestion des erreurs :
+    gr.errorCheckH();
     gr.errorDisplay();
 
-    return 0;
+    */
 }
