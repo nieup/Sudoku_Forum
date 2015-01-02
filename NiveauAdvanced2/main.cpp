@@ -192,7 +192,7 @@ public:
         if(onlyOne == 1){return true;}
         //*/
 
-        //* Sur le Carre : " en securite "
+        /* Sur le Carre : " en securite "
         onlyOne = 0;
         int carId = retCar(L,C);
         for (int i = 0 ; i < 9 ; i++){
